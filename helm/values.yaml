@@ -1,0 +1,131 @@
+# Default values for helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCountMaster: 1
+replicaCountWorker: 2
+
+image:
+  repository: spark3n
+  pullPolicy: Never
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "v9"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: "spark"
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: spark-standalone.aws-np.fareye.io
+      paths:
+      - path: "/ui"
+        serviceName: spark-master
+        servicePort: 8080
+      - path: "/thrift"
+        serviceName: spark-master
+        servicePort: 10001
+  tls: 
+   - secretName: spark-stanalone-tls
+     hosts:
+       - spark-standalone.aws-np.fareye.io
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+sparkMaster:
+  resources:
+    requests:
+      cpu: 1
+      memory: 1300Mi
+    limits:
+      cpu: 1
+      memory: 1300Mi
+
+sparkWorker:
+  resources:
+    requests:
+      cpu: 1
+      memory: 1300Mi
+    limits:
+      cpu: 1
+      memory: 1300Mi
+
+
+config:
+  sparkDefaultConfig:
+    spark_master: spark://spark-master:7077
+    spark_hive_server2_transport_mode: http
+    spark_hive_server2_thrift_http_port: 10001
+    spark_hive_server2_http_endpoint: cliservice
+    spark_sql_warehouse_dir: opt/spark/hive-warehouse
+    spark_sql_catalogImplementation: hive
+    spark_sql_hive_metastore_sharedPrefixes: org.postgresql
+    spark_hadoop_hive_metastore_warehouse_dir: opt/spark/hive-warehouse
+    spark_hadoop_hive_metastore_schema_verification: false 
+    spark_hadoop_hive_metastore_schema_verification_record_version: false
+    spark_hadoop_javax_jdo_option_ConnectionURL: jdbc:postgresql://pg-minikube-postgresql:5432/hive?useSSL=false
+    spark_hadoop_javax_jdo_option_ConnectionPassword: postgres
+    spark_hadoop_javax_jdo_option_ConnectionUserName: postgres
+    spark_hadoop_javax_jdo_option_ConnectionDriverName: org.postgresql.Driver
+    spark_hadoop_datanucleus_schema_autoCreateAll: true
+    spark_hadoop_datanucleus_fixedDatastore: false
+    spark_hadoop_fs_s3a_access_key: AKIA3FEFCFQTVDRHRTYD
+    spark_hadoop_fs_s3a_secret_key: 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
+    spark_hadoop_fs_s3a_impl: org.apache.hadoop.fs.s3a.S3AFileSystem
+
+
+
+

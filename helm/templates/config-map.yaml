@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spark-default-config
+data:
+  spark-defaults.conf: |
+    spark.master {{.Values.config.sparkDefaultConfig.spark_master}}
+    spark.hive.server2.transport.mode {{.Values.config.sparkDefaultConfig.spark_hive_server2_transport_mode}}
+    spark.hive.server2.thrift.http.port {{.Values.config.sparkDefaultConfig.spark_hive_server2_thrift_http_port}}
+    spark.hive.server2.http.endpoint {{.Values.config.sparkDefaultConfig.spark_hive_server2_http_endpoint}}
+    spark.sql.warehouse.dir {{.Values.config.sparkDefaultConfig.spark_sql_warehouse_dir}}
+    spark.sql.catalogImplementation {{.Values.config.sparkDefaultConfig.spark_sql_catalogImplementation}}
+    spark.sql.hive.metastore.sharedPrefixes {{.Values.config.sparkDefaultConfig.spark_sql_hive_metastore_sharedPrefixes}}
+    spark.hadoop.hive.metastore.warehouse.dir {{.Values.config.sparkDefaultConfig.spark_hadoop_hive_metastore_warehouse_dir}}
+    spark.hadoop.hive.metastore.schema.verification {{.Values.config.sparkDefaultConfig.spark_hadoop_hive_metastore_schema_verification}}
+    spark.hadoop.hive.metastore.schema.verification.record.version {{.Values.config.sparkDefaultConfig.spark_hadoop_hive_metastore_schema_verification_record_version}}
+    spark.hadoop.javax.jdo.option.ConnectionURL {{.Values.config.sparkDefaultConfig.spark_hadoop_javax_jdo_option_ConnectionURL}}
+    spark.hadoop.javax.jdo.option.ConnectionDriverName {{.Values.config.sparkDefaultConfig.spark_hadoop_javax_jdo_option_ConnectionDriverName}}
+    spark.hadoop.datanucleus.schema.autoCreateAll {{.Values.config.sparkDefaultConfig.spark_hadoop_datanucleus_schema_autoCreateAll}}
+    spark.hadoop.datanucleus.fixedDatastore {{.Values.config.sparkDefaultConfig.spark_hadoop_datanucleus_fixedDatastore}}
+    spark.hadoop.fs.s3a.impl {{.Values.config.sparkDefaultConfig.spark_hadoop_fs_s3a_impl}}

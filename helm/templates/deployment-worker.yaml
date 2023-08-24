@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "helm.fullname" . }}-worker
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCountWorker }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "helm.selectorLabelsWorker" . | nindent 6 }}
+  template:
+    metadata:
+      # {{- with .Values.podAnnotations }}
+      # annotations:
+      #   {{- toYaml . | nindent 8 }}
+      # {{- end }}
+      labels:
+        {{- include "helm.selectorLabelsWorker" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-spark-worker
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/sh","-c"]
+          args: ["sleep 30;/opt/spark/docker-configs/spark-worker;"]
+          ports:
+            - containerPort: 8081
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          resources:
+            {{- toYaml .Values.sparkWorker.resources | nindent 12 }}
+      # {{- with .Values.nodeSelector }}
+      # nodeSelector:
+      #   {{- toYaml . | nindent 8 }}
+      # {{- end }}
+      # {{- with .Values.affinity }}
+      # affinity:
+      #   {{- toYaml . | nindent 8 }}
+      # {{- end }}
+      # {{- with .Values.tolerations }}
+      # tolerations:
+      #   {{- toYaml . | nindent 8 }}
+      # {{- end }}

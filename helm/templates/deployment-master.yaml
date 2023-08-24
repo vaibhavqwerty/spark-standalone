@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "helm.fullname" . }}-master
+spec:
+  replicas: {{ .Values.replicaCountMaster }}
+  selector:
+    matchLabels:
+      {{- include "helm.selectorLabelsMaster" . | nindent 6 }}
+  template:
+    metadata:
+      # {{- with .Values.podAnnotations }}
+      # annotations:
+      #   {{- toYaml . | nindent 8 }}
+      # {{- end }}
+      labels:
+        {{- include "helm.selectorLabelsMaster" . | nindent 8 }}
+    spec:
+      hostname: spark-master-hostname
+      subdomain: spark-master-headless
+      containers:
+        - name: {{ .Chart.Name }}-spark-master
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/bin/sh","-c"]
+          args: ["cat /opt/spark/conf-configMap/spark-defaults.conf /opt/spark/conf-secret/spark-defaults.conf  >> /opt/spark/conf/spark-defaults.conf; /opt/spark/docker-configs/spark-thrift;/opt/spark/docker-configs/spark-master;"]
+          ports:
+            - containerPort: 7077
+            - containerPort: 8080
+            - containerPort: 10001
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          resources:
+            {{- toYaml .Values.sparkMaster.resources | nindent 12 }}
+          volumeMounts:
+          - mountPath: /opt/spark/conf-configMap
+            name: config-volume
+          - mountPath: /opt/spark/conf-secret
+            name: secret-volume
+            readOnly: true 
+      volumes:
+      - name: config-volume
+        configMap:
+          name: spark-default-config
+      - name: secret-volume
+        secret:
+          secretName: spark-secret
